@@ -4,34 +4,37 @@
 // Internal details; most calling programs do not need this header,
 // unless using verilator public meta comments.
 
-#ifndef _VSYSTOLIC_TOP__SYMS_H_
-#define _VSYSTOLIC_TOP__SYMS_H_  // guard
+#ifndef VERILATED_VSYSTOLIC_TOP__SYMS_H_
+#define VERILATED_VSYSTOLIC_TOP__SYMS_H_  // guard
 
 #include "verilated.h"
 
-// INCLUDE MODULE CLASSES
+// INCLUDE MODEL CLASS
+
 #include "Vsystolic_top.h"
 
-// SYMS CLASS
-class Vsystolic_top__Syms : public VerilatedSyms {
+// INCLUDE MODULE CLASSES
+#include "Vsystolic_top___024root.h"
+
+// SYMS CLASS (contains all model state)
+class alignas(VL_CACHE_LINE_BYTES)Vsystolic_top__Syms final : public VerilatedSyms {
   public:
-    
-    // LOCAL STATE
-    const char* __Vm_namep;
-    bool __Vm_activity;  ///< Used by trace routines to determine change occurred
-    uint32_t __Vm_baseCode;  ///< Used by trace routines when tracing multiple models
-    bool __Vm_didInit;
-    
-    // SUBCELL STATE
-    Vsystolic_top*                 TOPp;
-    
-    // CREATORS
-    Vsystolic_top__Syms(Vsystolic_top* topp, const char* namep);
-    ~Vsystolic_top__Syms() {}
-    
+    // INTERNAL STATE
+    Vsystolic_top* const __Vm_modelp;
+    bool __Vm_activity = false;  ///< Used by trace routines to determine change occurred
+    uint32_t __Vm_baseCode = 0;  ///< Used by trace routines when tracing multiple models
+    VlDeleter __Vm_deleter;
+    bool __Vm_didInit = false;
+
+    // MODULE INSTANCE STATE
+    Vsystolic_top___024root        TOP;
+
+    // CONSTRUCTORS
+    Vsystolic_top__Syms(VerilatedContext* contextp, const char* namep, Vsystolic_top* modelp);
+    ~Vsystolic_top__Syms();
+
     // METHODS
-    inline const char* name() { return __Vm_namep; }
-    
-} VL_ATTR_ALIGNED(VL_CACHE_LINE_BYTES);
+    const char* name() { return TOP.name(); }
+};
 
 #endif  // guard

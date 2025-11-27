@@ -1,1327 +1,146 @@
 // Verilated -*- C++ -*-
-// DESCRIPTION: Verilator output: Design implementation internals
-// See Vsystolic_top.h for the primary calling header
+// DESCRIPTION: Verilator output: Model implementation (design independent parts)
 
-#include "Vsystolic_top.h"
-#include "Vsystolic_top__Syms.h"
+#include "Vsystolic_top__pch.h"
+#include "verilated_vcd_c.h"
 
-//==========
+//============================================================
+// Constructors
+
+Vsystolic_top::Vsystolic_top(VerilatedContext* _vcontextp__, const char* _vcname__)
+    : VerilatedModel{*_vcontextp__}
+    , vlSymsp{new Vsystolic_top__Syms(contextp(), _vcname__, this)}
+    , clk{vlSymsp->TOP.clk}
+    , rst_n{vlSymsp->TOP.rst_n}
+    , mode{vlSymsp->TOP.mode}
+    , state{vlSymsp->TOP.state}
+    , a_in_raw{vlSymsp->TOP.a_in_raw}
+    , b_in_raw{vlSymsp->TOP.b_in_raw}
+    , sum_in_raw{vlSymsp->TOP.sum_in_raw}
+    , sum_out{vlSymsp->TOP.sum_out}
+    , rootp{&(vlSymsp->TOP)}
+{
+    // Register model with the context
+    contextp()->addModel(this);
+    contextp()->traceBaseModelCbAdd(
+        [this](VerilatedTraceBaseC* tfp, int levels, int options) { traceBaseModel(tfp, levels, options); });
+}
+
+Vsystolic_top::Vsystolic_top(const char* _vcname__)
+    : Vsystolic_top(Verilated::threadContextp(), _vcname__)
+{
+}
+
+//============================================================
+// Destructor
+
+Vsystolic_top::~Vsystolic_top() {
+    delete vlSymsp;
+}
+
+//============================================================
+// Evaluation function
+
+#ifdef VL_DEBUG
+void Vsystolic_top___024root___eval_debug_assertions(Vsystolic_top___024root* vlSelf);
+#endif  // VL_DEBUG
+void Vsystolic_top___024root___eval_static(Vsystolic_top___024root* vlSelf);
+void Vsystolic_top___024root___eval_initial(Vsystolic_top___024root* vlSelf);
+void Vsystolic_top___024root___eval_settle(Vsystolic_top___024root* vlSelf);
+void Vsystolic_top___024root___eval(Vsystolic_top___024root* vlSelf);
 
 void Vsystolic_top::eval_step() {
-    VL_DEBUG_IF(VL_DBG_MSGF("+++++TOP Evaluate Vsystolic_top::eval\n"); );
-    Vsystolic_top__Syms* __restrict vlSymsp = this->__VlSymsp;  // Setup global symbol table
-    Vsystolic_top* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+++++TOP Evaluate Vsystolic_top::eval_step\n"); );
 #ifdef VL_DEBUG
     // Debug assertions
-    _eval_debug_assertions();
+    Vsystolic_top___024root___eval_debug_assertions(&(vlSymsp->TOP));
 #endif  // VL_DEBUG
-    // Initialize
-    if (VL_UNLIKELY(!vlSymsp->__Vm_didInit)) _eval_initial_loop(vlSymsp);
-    // Evaluate till stable
-    int __VclockLoop = 0;
-    QData __Vchange = 1;
-    do {
-        VL_DEBUG_IF(VL_DBG_MSGF("+ Clock loop\n"););
-        vlSymsp->__Vm_activity = true;
-        _eval(vlSymsp);
-        if (VL_UNLIKELY(++__VclockLoop > 100)) {
-            // About to fail, so enable debug to see what's not settling.
-            // Note you must run make with OPT=-DVL_DEBUG for debug prints.
-            int __Vsaved_debug = Verilated::debug();
-            Verilated::debug(1);
-            __Vchange = _change_request(vlSymsp);
-            Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("systolic.sv", 1, "",
-                "Verilated model didn't converge\n"
-                "- See DIDNOTCONVERGE in the Verilator manual");
-        } else {
-            __Vchange = _change_request(vlSymsp);
-        }
-    } while (VL_UNLIKELY(__Vchange));
-}
-
-void Vsystolic_top::_eval_initial_loop(Vsystolic_top__Syms* __restrict vlSymsp) {
-    vlSymsp->__Vm_didInit = true;
-    _eval_initial(vlSymsp);
     vlSymsp->__Vm_activity = true;
-    // Evaluate till stable
-    int __VclockLoop = 0;
-    QData __Vchange = 1;
-    do {
-        _eval_settle(vlSymsp);
-        _eval(vlSymsp);
-        if (VL_UNLIKELY(++__VclockLoop > 100)) {
-            // About to fail, so enable debug to see what's not settling.
-            // Note you must run make with OPT=-DVL_DEBUG for debug prints.
-            int __Vsaved_debug = Verilated::debug();
-            Verilated::debug(1);
-            __Vchange = _change_request(vlSymsp);
-            Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("systolic.sv", 1, "",
-                "Verilated model didn't DC converge\n"
-                "- See DIDNOTCONVERGE in the Verilator manual");
-        } else {
-            __Vchange = _change_request(vlSymsp);
-        }
-    } while (VL_UNLIKELY(__Vchange));
+    vlSymsp->__Vm_deleter.deleteAll();
+    if (VL_UNLIKELY(!vlSymsp->__Vm_didInit)) {
+        vlSymsp->__Vm_didInit = true;
+        VL_DEBUG_IF(VL_DBG_MSGF("+ Initial\n"););
+        Vsystolic_top___024root___eval_static(&(vlSymsp->TOP));
+        Vsystolic_top___024root___eval_initial(&(vlSymsp->TOP));
+        Vsystolic_top___024root___eval_settle(&(vlSymsp->TOP));
+    }
+    VL_DEBUG_IF(VL_DBG_MSGF("+ Eval\n"););
+    Vsystolic_top___024root___eval(&(vlSymsp->TOP));
+    // Evaluate cleanup
+    Verilated::endOfEval(vlSymsp->__Vm_evalMsgQp);
 }
 
-VL_INLINE_OPT void Vsystolic_top::_sequent__TOP__1(Vsystolic_top__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vsystolic_top::_sequent__TOP__1\n"); );
-    Vsystolic_top* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
-    // Variables
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v2;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v3;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v2;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2;
-    CData/*0:0*/ __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v3;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v1;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v1;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1;
-    SData/*15:0*/ __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    SData/*15:0*/ __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    // Body
-    __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v2 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v2 = 0U;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v3 = 0U;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2 = 0U;
-    __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v3 = 0U;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    if (vlTOPp->rst_n) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__unnamedblk2__DOT__i = 1U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__unnamedblk1__DOT__i = 1U;
-    }
-    if (vlTOPp->rst_n) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__unnamedblk2__DOT__i = 2U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__unnamedblk1__DOT__i = 2U;
-    }
-    if (vlTOPp->rst_n) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__unnamedblk2__DOT__i = 3U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__unnamedblk1__DOT__i = 3U;
-    }
-    if (vlTOPp->rst_n) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__unnamedblk2__DOT__i = 1U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__unnamedblk1__DOT__i = 1U;
-    }
-    if (vlTOPp->rst_n) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__unnamedblk2__DOT__i = 2U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__unnamedblk1__DOT__i = 2U;
-    }
-    if (vlTOPp->rst_n) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__unnamedblk2__DOT__i = 3U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__unnamedblk1__DOT__i = 3U;
-    }
-    __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__shift_reg__v0 
-        = ((IData)(vlTOPp->rst_n) ? (0xffffU & (IData)(
-                                                       (vlTOPp->systolic_top__DOT__a_in 
-                                                        >> 0x10U)))
-            : 0U);
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_delayed
-               [3U] : vlTOPp->systolic_top__DOT__a_reg_delayed
-               [3U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_delayed
-                [3U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_delayed
-               [2U] : vlTOPp->systolic_top__DOT__a_reg_delayed
-               [2U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_delayed
-                [2U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_delayed
-               [1U] : vlTOPp->systolic_top__DOT__a_reg_delayed
-               [1U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_delayed
-                [1U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_delayed
-               [0U] : vlTOPp->systolic_top__DOT__a_reg_delayed
-               [0U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_delayed
-                [0U];
-        }
-    }
-    __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__shift_reg__v0 
-        = ((IData)(vlTOPp->rst_n) ? (0xffffU & (IData)(
-                                                       (vlTOPp->systolic_top__DOT__b_in 
-                                                        >> 0x10U)))
-            : 0U);
-    if (vlTOPp->rst_n) {
-        __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__a_in 
-                                  >> 0x20U)));
-        __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0 = 1U;
-        __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v1 
-            = vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg
-            [0U];
-    } else {
-        __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v2 = 1U;
-    }
-    if (vlTOPp->rst_n) {
-        __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__b_in 
-                                  >> 0x20U)));
-        __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0 = 1U;
-        __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v1 
-            = vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg
-            [0U];
-    } else {
-        __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v2 = 1U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                              [0U] * vlTOPp->systolic_top__DOT__b_reg_delayed
-                              [0U])) : (IData)(vlTOPp->systolic_top__DOT__sum_in)));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & ((IData)(vlTOPp->systolic_top__DOT__sum_in) 
-                              + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                                 [0U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [3U][2U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [3U][2U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [3U][2U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [3U][1U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [3U][1U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [3U][1U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [3U][0U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [3U][0U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [3U][0U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [2U][2U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [2U][2U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [2U][2U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [2U][1U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [2U][1U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [2U][1U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [2U][0U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [2U][0U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [2U][0U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [1U][2U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [1U][2U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [1U][2U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [1U][1U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [1U][1U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [1U][1U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [1U][0U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [1U][0U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [1U][0U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [0U][2U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [0U][2U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [0U][2U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [0U][1U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [0U][1U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [0U][1U];
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__a_reg_array
-               [0U][0U] : vlTOPp->systolic_top__DOT__a_reg_array
-               [0U][0U]);
-    } else {
-        if (vlTOPp->state) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg 
-                = vlTOPp->systolic_top__DOT__a_reg_array
-                [0U][0U];
-        }
-    }
-    if (vlTOPp->rst_n) {
-        __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__a_in 
-                                  >> 0x30U)));
-        __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0 = 1U;
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT____Vlvbound1 
-            = vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg
-            [0U];
-        __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1 
-            = vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT____Vlvbound1;
-        __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1 = 1U;
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT____Vlvbound1 
-            = vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg
-            [1U];
-        __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2 
-            = vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT____Vlvbound1;
-        __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2 = 1U;
-    } else {
-        __Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v3 = 1U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [0U][2U] * vlTOPp->systolic_top__DOT__b_reg_delayed
-                              [3U])) : (IData)((vlTOPp->systolic_top__DOT__sum_in 
-                                                >> 0x30U))));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & ((IData)((vlTOPp->systolic_top__DOT__sum_in 
-                                       >> 0x30U)) + 
-                              (vlTOPp->systolic_top__DOT__a_reg_array
-                               [0U][2U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [0U][1U] * vlTOPp->systolic_top__DOT__b_reg_delayed
-                              [2U])) : (IData)((vlTOPp->systolic_top__DOT__sum_in 
-                                                >> 0x20U))));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & ((IData)((vlTOPp->systolic_top__DOT__sum_in 
-                                       >> 0x20U)) + 
-                              (vlTOPp->systolic_top__DOT__a_reg_array
-                               [0U][1U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [0U][0U] * vlTOPp->systolic_top__DOT__b_reg_delayed
-                              [1U])) : (IData)((vlTOPp->systolic_top__DOT__sum_in 
-                                                >> 0x10U))));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & ((IData)((vlTOPp->systolic_top__DOT__sum_in 
-                                       >> 0x10U)) + 
-                              (vlTOPp->systolic_top__DOT__a_reg_array
-                               [0U][0U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if (vlTOPp->rst_n) {
-        __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__b_in 
-                                  >> 0x30U)));
-        __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0 = 1U;
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT____Vlvbound1 
-            = vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg
-            [0U];
-        __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1 
-            = vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT____Vlvbound1;
-        __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1 = 1U;
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT____Vlvbound1 
-            = vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg
-            [1U];
-        __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2 
-            = vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT____Vlvbound1;
-        __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2 = 1U;
-    } else {
-        __Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v3 = 1U;
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                              [3U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [2U][0U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [2U][0U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [2U][0U] + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                                          [3U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                              [2U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [1U][0U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [1U][0U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [1U][0U] + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                                          [2U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                              [1U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [0U][0U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [0U][0U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [0U][0U] + (vlTOPp->systolic_top__DOT__a_reg_delayed
-                                          [1U] * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [3U][2U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [2U][3U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [2U][3U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [2U][3U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [3U][2U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [3U][1U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [2U][2U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [2U][2U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [2U][2U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [3U][1U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [3U][0U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [2U][1U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [2U][1U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [2U][1U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [3U][0U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [2U][2U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [1U][3U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [1U][3U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [1U][3U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [2U][2U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [2U][1U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [1U][2U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [1U][2U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [1U][2U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [2U][1U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [2U][0U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [1U][1U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [1U][1U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [1U][1U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [2U][0U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [1U][2U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [0U][3U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [0U][3U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [0U][3U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [1U][2U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [1U][1U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [0U][2U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [0U][2U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [0U][2U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [1U][1U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out = 0U;
-    }
-    if (vlTOPp->mode) {
-        __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-            = (0xffffU & ((IData)(vlTOPp->state) ? 
-                          ((IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out) 
-                           + (vlTOPp->systolic_top__DOT__a_reg_array
-                              [1U][0U] * vlTOPp->systolic_top__DOT__b_reg_array
-                              [0U][1U])) : vlTOPp->systolic_top__DOT__sum_array
-                          [0U][1U]));
-    } else {
-        if (vlTOPp->state) {
-            __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-                = (0xffffU & (vlTOPp->systolic_top__DOT__sum_array
-                              [0U][1U] + (vlTOPp->systolic_top__DOT__a_reg_array
-                                          [1U][0U] 
-                                          * (IData)(vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg))));
-        }
-    }
-    vlTOPp->systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__shift_reg[0U] 
-        = __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__shift_reg[0U] 
-        = __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg[0U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg[1U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v1;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg__v2) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg[0U] = 0U;
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg[1U] = 0U;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg[0U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg[1U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v1;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg__v2) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg[0U] = 0U;
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg[1U] = 0U;
-    }
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg[0U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v0;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg[1U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v1;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg[2U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v2;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg__v3) {
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg[0U] = 0U;
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg[1U] = 0U;
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg[2U] = 0U;
-    }
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg[0U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v0;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg[1U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v1;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg[2U] 
-            = __Vdlyvval__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v2;
-    }
-    if (__Vdlyvset__systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg__v3) {
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg[0U] = 0U;
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg[1U] = 0U;
-        vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg[2U] = 0U;
-    }
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out 
-        = __Vdly__systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT__a_reg_delayed[1U] = 
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__1__KET____DOT__a_delay_inst__DOT__shift_reg
-        [0U];
-    vlTOPp->systolic_top__DOT__a_reg_array[3U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[2U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[1U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[0U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_delayed[2U] = 
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__2__KET____DOT__a_delay_inst__DOT__shift_reg
-        [1U];
-    vlTOPp->systolic_top__DOT__sum_array[0U][0U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_delayed
-               [0U] : vlTOPp->systolic_top__DOT__b_reg_delayed
-               [0U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_delayed
-                [0U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__a_reg_array[3U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[3U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[3U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[2U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[2U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[2U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[1U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[1U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[1U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[0U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[0U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_array[0U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__a_reg;
-    vlTOPp->systolic_top__DOT__a_reg_delayed[3U] = 
-        vlTOPp->systolic_top__DOT__input_split_loop__BRA__3__KET____DOT__a_delay_inst__DOT__shift_reg
-        [2U];
-    vlTOPp->systolic_top__DOT__a_in = ((IData)(vlTOPp->rst_n)
-                                        ? vlTOPp->a_in_raw
-                                        : 0ULL);
-    vlTOPp->systolic_top__DOT__sum_array[0U][3U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_delayed
-               [3U] : vlTOPp->systolic_top__DOT__b_reg_delayed
-               [3U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_delayed
-                [3U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[0U][2U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_delayed
-               [2U] : vlTOPp->systolic_top__DOT__b_reg_delayed
-               [2U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_delayed
-                [2U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[0U][1U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    vlTOPp->systolic_top__DOT__sum_in = ((IData)(vlTOPp->rst_n)
-                                          ? vlTOPp->sum_in_raw
-                                          : 0ULL);
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_delayed
-               [1U] : vlTOPp->systolic_top__DOT__b_reg_delayed
-               [1U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_delayed
-                [1U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__b_in = ((IData)(vlTOPp->rst_n)
-                                        ? vlTOPp->b_in_raw
-                                        : 0ULL);
-    vlTOPp->systolic_top__DOT__sum_array[3U][0U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][0U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][0U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [2U][0U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[2U][0U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][0U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][0U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [1U][0U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[1U][0U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][0U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][0U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [0U][0U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[3U][3U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][3U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][3U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [2U][3U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[3U][2U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][2U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][2U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [2U][2U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[3U][1U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][1U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [2U][1U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [2U][1U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[2U][3U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][3U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][3U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [1U][3U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[2U][2U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][2U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][2U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [1U][2U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[2U][1U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][1U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [1U][1U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [1U][1U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[1U][3U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][3U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][3U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [0U][3U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[1U][2U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][2U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][2U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [0U][2U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__sum_array[1U][1U] = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__sum_out;
-    if ((1U & (~ (IData)(vlTOPp->rst_n)))) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg = 0U;
-    }
-    if (vlTOPp->mode) {
-        vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-            = ((IData)(vlTOPp->state) ? vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][1U] : vlTOPp->systolic_top__DOT__b_reg_array
-               [0U][1U]);
-    } else {
-        if ((1U & (~ (IData)(vlTOPp->state)))) {
-            vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg 
-                = vlTOPp->systolic_top__DOT__b_reg_array
-                [0U][1U];
-        }
-    }
-    vlTOPp->systolic_top__DOT__b_reg_array[0U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__a_reg_delayed[0U] = 
-        (0xffffU & (IData)(vlTOPp->systolic_top__DOT__a_in));
-    vlTOPp->systolic_top__DOT__b_reg_array[0U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[0U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[0U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__0__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_delayed[0U] = 
-        (0xffffU & (IData)(vlTOPp->systolic_top__DOT__b_in));
-    vlTOPp->systolic_top__DOT__b_reg_array[3U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[2U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[1U][0U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__0__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[3U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[3U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[3U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__3__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[2U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[2U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[2U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__2__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[1U][3U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__3__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[1U][2U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__2__KET____DOT__pe_inst__b_reg;
-    vlTOPp->systolic_top__DOT__b_reg_array[1U][1U] 
-        = vlTOPp->systolic_top__DOT____Vcellout__row_loop__BRA__1__KET____DOT__col_loop__BRA__1__KET____DOT__pe_inst__b_reg;
+//============================================================
+// Events and timing
+bool Vsystolic_top::eventsPending() { return false; }
+
+uint64_t Vsystolic_top::nextTimeSlot() {
+    VL_FATAL_MT(__FILE__, __LINE__, "", "No delays in the design");
+    return 0;
 }
 
-VL_INLINE_OPT void Vsystolic_top::_combo__TOP__3(Vsystolic_top__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vsystolic_top::_combo__TOP__3\n"); );
-    Vsystolic_top* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
-    // Body
-    if (((IData)(vlTOPp->state) | (IData)(vlTOPp->mode))) {
-        vlTOPp->systolic_top__DOT__b_reg_delayed[1U] 
-            = (0xffffU & vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__1__KET____DOT__b_delay_inst__DOT__shift_reg
-               [0U]);
-        vlTOPp->systolic_top__DOT__b_reg_delayed[2U] 
-            = (0xffffU & vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__2__KET____DOT__b_delay_inst__DOT__shift_reg
-               [1U]);
-        vlTOPp->systolic_top__DOT__b_reg_delayed[3U] 
-            = (0xffffU & vlTOPp->systolic_top__DOT__input_split_loop_b__BRA__3__KET____DOT__b_delay_inst__DOT__shift_reg
-               [2U]);
-    } else {
-        vlTOPp->systolic_top__DOT__b_reg_delayed[1U] 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__b_in 
-                                  >> 0x10U)));
-        vlTOPp->systolic_top__DOT__b_reg_delayed[2U] 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__b_in 
-                                  >> 0x20U)));
-        vlTOPp->systolic_top__DOT__b_reg_delayed[3U] 
-            = (0xffffU & (IData)((vlTOPp->systolic_top__DOT__b_in 
-                                  >> 0x30U)));
+//============================================================
+// Utilities
+
+const char* Vsystolic_top::name() const {
+    return vlSymsp->name();
+}
+
+//============================================================
+// Invoke final blocks
+
+void Vsystolic_top___024root___eval_final(Vsystolic_top___024root* vlSelf);
+
+VL_ATTR_COLD void Vsystolic_top::final() {
+    Vsystolic_top___024root___eval_final(&(vlSymsp->TOP));
+}
+
+//============================================================
+// Implementations of abstract methods from VerilatedModel
+
+const char* Vsystolic_top::hierName() const { return vlSymsp->name(); }
+const char* Vsystolic_top::modelName() const { return "Vsystolic_top"; }
+unsigned Vsystolic_top::threads() const { return 1; }
+void Vsystolic_top::prepareClone() const { contextp()->prepareClone(); }
+void Vsystolic_top::atClone() const {
+    contextp()->threadPoolpOnClone();
+}
+std::unique_ptr<VerilatedTraceConfig> Vsystolic_top::traceConfig() const {
+    return std::unique_ptr<VerilatedTraceConfig>{new VerilatedTraceConfig{false, false, false}};
+};
+
+//============================================================
+// Trace configuration
+
+void Vsystolic_top___024root__trace_decl_types(VerilatedVcd* tracep);
+
+void Vsystolic_top___024root__trace_init_top(Vsystolic_top___024root* vlSelf, VerilatedVcd* tracep);
+
+VL_ATTR_COLD static void trace_init(void* voidSelf, VerilatedVcd* tracep, uint32_t code) {
+    // Callback from tracep->open()
+    Vsystolic_top___024root* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<Vsystolic_top___024root*>(voidSelf);
+    Vsystolic_top__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    if (!vlSymsp->_vm_contextp__->calcUnusedSigs()) {
+        VL_FATAL_MT(__FILE__, __LINE__, __FILE__,
+            "Turning on wave traces requires Verilated::traceEverOn(true) call before time 0.");
     }
+    vlSymsp->__Vm_baseCode = code;
+    tracep->pushPrefix(std::string{vlSymsp->name()}, VerilatedTracePrefixType::SCOPE_MODULE);
+    Vsystolic_top___024root__trace_decl_types(tracep);
+    Vsystolic_top___024root__trace_init_top(vlSelf, tracep);
+    tracep->popPrefix();
 }
 
-void Vsystolic_top::_eval(Vsystolic_top__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vsystolic_top::_eval\n"); );
-    Vsystolic_top* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
-    // Body
-    if ((((IData)(vlTOPp->clk) & (~ (IData)(vlTOPp->__Vclklast__TOP__clk))) 
-         | ((~ (IData)(vlTOPp->rst_n)) & (IData)(vlTOPp->__Vclklast__TOP__rst_n)))) {
-        vlTOPp->_sequent__TOP__1(vlSymsp);
-        vlTOPp->__Vm_traceActivity[1U] = 1U;
+VL_ATTR_COLD void Vsystolic_top___024root__trace_register(Vsystolic_top___024root* vlSelf, VerilatedVcd* tracep);
+
+VL_ATTR_COLD void Vsystolic_top::traceBaseModel(VerilatedTraceBaseC* tfp, int levels, int options) {
+    (void)levels; (void)options;
+    VerilatedVcdC* const stfp = dynamic_cast<VerilatedVcdC*>(tfp);
+    if (VL_UNLIKELY(!stfp)) {
+        vl_fatal(__FILE__, __LINE__, __FILE__,"'Vsystolic_top::trace()' called on non-VerilatedVcdC object;"
+            " use --trace-fst with VerilatedFst object, and --trace-vcd with VerilatedVcd object");
     }
-    vlTOPp->_combo__TOP__3(vlSymsp);
-    vlTOPp->__Vm_traceActivity[2U] = 1U;
-    // Final
-    vlTOPp->__Vclklast__TOP__clk = vlTOPp->clk;
-    vlTOPp->__Vclklast__TOP__rst_n = vlTOPp->rst_n;
+    stfp->spTrace()->addModel(this);
+    stfp->spTrace()->addInitCb(&trace_init, &(vlSymsp->TOP));
+    Vsystolic_top___024root__trace_register(&(vlSymsp->TOP), stfp->spTrace());
 }
-
-VL_INLINE_OPT QData Vsystolic_top::_change_request(Vsystolic_top__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vsystolic_top::_change_request\n"); );
-    Vsystolic_top* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
-    // Body
-    return (vlTOPp->_change_request_1(vlSymsp));
-}
-
-VL_INLINE_OPT QData Vsystolic_top::_change_request_1(Vsystolic_top__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vsystolic_top::_change_request_1\n"); );
-    Vsystolic_top* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
-    // Body
-    // Change detection
-    QData __req = false;  // Logically a bool
-    return __req;
-}
-
-#ifdef VL_DEBUG
-void Vsystolic_top::_eval_debug_assertions() {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vsystolic_top::_eval_debug_assertions\n"); );
-    // Body
-    if (VL_UNLIKELY((clk & 0xfeU))) {
-        Verilated::overWidthError("clk");}
-    if (VL_UNLIKELY((rst_n & 0xfeU))) {
-        Verilated::overWidthError("rst_n");}
-    if (VL_UNLIKELY((mode & 0xfeU))) {
-        Verilated::overWidthError("mode");}
-    if (VL_UNLIKELY((state & 0xfeU))) {
-        Verilated::overWidthError("state");}
-}
-#endif  // VL_DEBUG

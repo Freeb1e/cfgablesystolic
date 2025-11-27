@@ -84,6 +84,24 @@ module systolic_top#(
             end
         end
     endgenerate
+    //对齐权重固定情况下的结果输出
+    genvar p;
+    logic [SUM_WIDTH-1:0] sum_out_array [0:SYSTOLIC_WIDTH-1];
+    generate
+       for(p=0;p<SYSTOLIC_WIDTH-1;p=p+1) begin:output_align_loop
+            delay_reg #(
+                          .DATA_WIDTH(SUM_WIDTH),
+                          .DELAY_CYCLES(SYSTOLIC_WIDTH-p-1)
+                      ) sum_delay_inst (
+                          .clk(clk),
+                          .rst_n(rst_n),
+                          .din(sum_array[SYSTOLIC_WIDTH-1][p]),
+                          .delay_switch(1'b1),
+                          .dout(sum_out_array[p])
+                      );
+        end
+    endgenerate
+    assign sum_out_array[3] = sum_array[SYSTOLIC_WIDTH-1][3];
 endmodule 
 
 
